@@ -1,0 +1,198 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* --------------------------------------------------------
+   GLOBAL BASE STYLES (Enhanced Apple VisionOS)
+---------------------------------------------------------*/
+
+body {
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+
+  /* New VisionOS Deep Gradient Background */
+  background: radial-gradient(circle at 50% -20%, #1b1d2b, #0a0a0f 55%, #000 100%);
+
+  color: white;
+  overflow-x: hidden;
+}
+
+/* Smooth Scroll */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Ambient Glow — Larger & Softer */
+body::before {
+  content: "";
+  position: fixed;
+  top: -25%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 1600px;
+  height: 900px;
+
+  background: radial-gradient(
+    circle,
+    rgba(150, 100, 255, 0.25),
+    rgba(80, 50, 180, 0.2) 40%,
+    transparent 70%
+  );
+
+  filter: blur(150px);
+  pointer-events: none;
+  z-index: -2;
+}
+
+/* Cinematic bottom glow for depth */
+body::after {
+  content: "";
+  position: fixed;
+  bottom: -20%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 1400px;
+  height: 600px;
+
+  background: radial-gradient(
+    circle,
+    rgba(50, 0, 120, 0.4),
+    transparent 70%
+  );
+
+  filter: blur(170px);
+  pointer-events: none;
+  z-index: -3;
+}
+
+/* --------------------------------------------------------
+   GLASS EFFECTS — Premium VisionOS Look
+---------------------------------------------------------*/
+
+.glass {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(26px) saturate(150%);
+  -webkit-backdrop-filter: blur(26px) saturate(150%);
+  border-radius: 20px;
+  transition: 0.25s ease;
+}
+
+.glass:hover {
+  background: rgba(255, 255, 255, 0.10);
+  transform: translateY(-3px) scale(1.01);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+/* Heavier premium glass */
+.glass-heavy {
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  border-radius: 24px;
+  transition: 0.3s ease;
+}
+
+.glass-heavy:hover {
+  transform: translateY(-4px) scale(1.02);
+  background: rgba(255, 255, 255, 0.18);
+}
+
+/* --------------------------------------------------------
+   BUTTON ENHANCEMENTS
+---------------------------------------------------------*/
+
+button {
+  transition: 0.25s ease;
+}
+
+button:hover {
+  transform: translateY(-2px) scale(1.03);
+}
+
+/* --------------------------------------------------------
+   ANIMATIONS
+---------------------------------------------------------*/
+
+.fade-up {
+  opacity: 0;
+  transform: translateY(25px);
+  animation: fadeUp 0.9s ease-out forwards;
+}
+
+@keyframes fadeUp {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Side fades */
+.fade-left {
+  opacity: 0;
+  transform: translateX(-30px);
+  animation: fadeLeft 0.8s ease-out forwards;
+}
+
+@keyframes fadeLeft {
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.fade-right {
+  opacity: 0;
+  transform: translateX(30px);
+  animation: fadeRight 0.8s ease-out forwards;
+}
+
+@keyframes fadeRight {
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* Pop animation */
+.pop {
+  opacity: 0;
+  transform: scale(0.9);
+  animation: popIn 0.6s ease-out forwards;
+}
+
+@keyframes popIn {
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* --------------------------------------------------------
+   SCROLLBAR (Hidden Navigation, Visible Content)
+---------------------------------------------------------*/
+
+/* Hidden scrollbars for nav & horizontal menus */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  scrollbar-width: none;
+}
+
+/* Custom scrollbars for content areas */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.35);
+}
+
+/* --------------------------------------------------------
+   UTILITY CLASSES
+---------------------------------------------------------*/
+
+.text-glow {
+  text-shadow: 0px 0px 18px rgba(255,255,255,0.6);
+}
+
+.bg-glow {
+  box-shadow: 0px 0px 40px rgba(255,255,255,0.08);
+}

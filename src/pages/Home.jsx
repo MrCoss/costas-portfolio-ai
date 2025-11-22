@@ -12,7 +12,7 @@ import Contact from "../components/sections/Contact";
 
 const Home = () => {
   return (
-    <div className="space-y-20">
+    <div className="space-y-12 md:space-y-20 lg:space-y-24">
       <Hero />
       <About />
       <Skills />

@@ -2,7 +2,7 @@
 import React, { createContext, useEffect, useState, useContext } from "react";
 import { getContent } from "../services/contentService";
 
-export const ContentContext = createContext(null);
+const ContentContext = createContext(null);
 
 export const ContentProvider = ({ children }) => {
   const [content, setContent] = useState(null);
@@ -17,6 +17,7 @@ export const ContentProvider = ({ children }) => {
         setContent({});
       }
     };
+
     load();
   }, []);
 
@@ -29,15 +30,23 @@ export const ContentProvider = ({ children }) => {
   }
 
   return (
-    <ContentContext.Provider value={content}>
+    <ContentContext.Provider value={{ content, setContent }}>
       {children}
     </ContentContext.Provider>
   );
 };
 
-// ⭐ THIS WAS MISSING
+// 🚀 USE THIS HOOK ANYWHERE IN PORTFOLIO UI
 export const useContent = () => {
-  return useContext(ContentContext);
+  const ctx = useContext(ContentContext);
+  if (!ctx) throw new Error("useContent must be used inside <ContentProvider>");
+  return ctx.content;
 };
 
-export default useContent;
+export const useSetContent = () => {
+  const ctx = useContext(ContentContext);
+  if (!ctx) throw new Error("useSetContent must be inside <ContentProvider>");
+  return ctx.setContent;
+};
+
+export default ContentContext;

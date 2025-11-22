@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 /* --------------------------------------------------------
-   GLOBAL BASE STYLES (Enhanced Apple VisionOS)
+   GLOBAL BASE STYLES (Apple VisionOS + Purple Nebula)
 ---------------------------------------------------------*/
 
 body {
@@ -11,8 +11,8 @@ body {
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 
-  /* New VisionOS Deep Gradient Background */
-  background: radial-gradient(circle at 50% -20%, #1b1d2b, #0a0a0f 55%, #000 100%);
+  /* PURPLE NEBULA BACKGROUND */
+  background: radial-gradient(circle at 50% -10%, #2d1b4a 0%, #0c0b11 60%, #000 100%);
 
   color: white;
   overflow-x: hidden;
@@ -23,85 +23,126 @@ html {
   scroll-behavior: smooth;
 }
 
-/* Ambient Glow — Larger & Softer */
+/* --------------------------------------------------------
+   PURPLE NEBULA GLOW LAYERS
+---------------------------------------------------------*/
+
+/* TOP NEBULA */
 body::before {
   content: "";
   position: fixed;
   top: -25%;
   left: 50%;
   transform: translateX(-50%);
-  width: 1600px;
-  height: 900px;
+  width: 1800px;
+  height: 1000px;
 
   background: radial-gradient(
-    circle,
-    rgba(150, 100, 255, 0.25),
-    rgba(80, 50, 180, 0.2) 40%,
-    transparent 70%
+    circle at 40% 40%,
+    rgba(180, 80, 255, 0.55),
+    rgba(110, 40, 220, 0.35) 40%,
+    rgba(40, 0, 70, 0.25) 60%,
+    transparent 90%
   );
 
-  filter: blur(150px);
-  pointer-events: none;
+  filter: blur(130px);
   z-index: -2;
+  pointer-events: none;
 }
 
-/* Cinematic bottom glow for depth */
+/* BOTTOM COSMIC GLOW */
 body::after {
   content: "";
   position: fixed;
-  bottom: -20%;
+  bottom: -25%;
   left: 50%;
   transform: translateX(-50%);
-  width: 1400px;
-  height: 600px;
+  width: 1600px;
+  height: 850px;
 
   background: radial-gradient(
-    circle,
-    rgba(50, 0, 120, 0.4),
-    transparent 70%
+    circle at 50% 60%,
+    rgba(90, 0, 120, 0.50),
+    rgba(50, 0, 80, 0.32) 40%,
+    transparent 75%
   );
 
-  filter: blur(170px);
-  pointer-events: none;
+  filter: blur(140px);
   z-index: -3;
+  pointer-events: none;
+}
+
+/* MOBILE OPTIMIZATION */
+@media (max-width: 768px) {
+  body::before {
+    width: 900px;
+    height: 500px;
+    filter: blur(90px);
+    opacity: 0.6;
+  }
+  body::after {
+    width: 800px;
+    height: 500px;
+    filter: blur(110px);
+    opacity: 0.4;
+  }
+}
+
+@media (max-width: 480px) {
+  body::before {
+    width: 700px;
+    height: 380px;
+    opacity: 0.55;
+  }
+  body::after {
+    width: 600px;
+    height: 350px;
+    opacity: 0.35;
+  }
 }
 
 /* --------------------------------------------------------
-   GLASS EFFECTS — Premium VisionOS Look
+   GLASS EFFECTS (VisionOS Layers)
 ---------------------------------------------------------*/
 
 .glass {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(26px) saturate(150%);
-  -webkit-backdrop-filter: blur(26px) saturate(150%);
+  backdrop-filter: blur(22px) saturate(150%);
+  -webkit-backdrop-filter: blur(22px) saturate(150%);
   border-radius: 20px;
   transition: 0.25s ease;
 }
 
 .glass:hover {
   background: rgba(255, 255, 255, 0.10);
-  transform: translateY(-3px) scale(1.01);
-  border-color: rgba(255, 255, 255, 0.25);
+  transform: translateY(-2px) scale(1.01);
+  border-color: rgba(255, 255, 255, 0.22);
 }
 
-/* Heavier premium glass */
 .glass-heavy {
   background: rgba(255, 255, 255, 0.14);
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  backdrop-filter: blur(40px) saturate(180%);
-  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.23);
+  backdrop-filter: blur(36px) saturate(170%);
+  -webkit-backdrop-filter: blur(36px) saturate(170%);
   border-radius: 24px;
   transition: 0.3s ease;
 }
 
 .glass-heavy:hover {
-  transform: translateY(-4px) scale(1.02);
+  transform: translateY(-3px) scale(1.015);
   background: rgba(255, 255, 255, 0.18);
 }
 
+@media (max-width: 640px) {
+  .glass-heavy {
+    backdrop-filter: blur(22px) saturate(150%);
+    background: rgba(255, 255, 255, 0.12);
+  }
+}
+
 /* --------------------------------------------------------
-   BUTTON ENHANCEMENTS
+   BUTTONS
 ---------------------------------------------------------*/
 
 button {
@@ -118,39 +159,48 @@ button:hover {
 
 .fade-up {
   opacity: 0;
-  transform: translateY(25px);
-  animation: fadeUp 0.9s ease-out forwards;
+  transform: translateY(22px);
+  animation: fadeUp 0.8s ease-out forwards;
+}
+
+@media (max-width: 640px) {
+  .fade-up {
+    transform: translateY(14px);
+    animation-duration: 0.55s;
+  }
 }
 
 @keyframes fadeUp {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* Side fades */
-.fade-left {
+.fade-left, .fade-right {
   opacity: 0;
-  transform: translateX(-30px);
+  animation-duration: 0.8s;
+}
+
+@media (max-width: 640px) {
+  .fade-left, .fade-right {
+    animation-duration: 0.55s;
+  }
+}
+
+.fade-left {
+  transform: translateX(-25px);
   animation: fadeLeft 0.8s ease-out forwards;
 }
 
-@keyframes fadeLeft {
-  to { opacity: 1; transform: translateX(0); }
-}
-
 .fade-right {
-  opacity: 0;
-  transform: translateX(30px);
+  transform: translateX(25px);
   animation: fadeRight 0.8s ease-out forwards;
 }
 
-@keyframes fadeRight {
-  to { opacity: 1; transform: translateX(0); }
-}
+@keyframes fadeLeft { to { opacity: 1; transform: translateX(0); } }
+@keyframes fadeRight { to { opacity: 1; transform: translateX(0); } }
 
-/* Pop animation */
 .pop {
   opacity: 0;
-  transform: scale(0.9);
+  transform: scale(0.92);
   animation: popIn 0.6s ease-out forwards;
 }
 
@@ -159,10 +209,9 @@ button:hover {
 }
 
 /* --------------------------------------------------------
-   SCROLLBAR (Hidden Navigation, Visible Content)
+   SCROLLBARS
 ---------------------------------------------------------*/
 
-/* Hidden scrollbars for nav & horizontal menus */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
@@ -170,7 +219,6 @@ button:hover {
   scrollbar-width: none;
 }
 
-/* Custom scrollbars for content areas */
 .custom-scrollbar::-webkit-scrollbar {
   width: 6px;
 }
@@ -186,11 +234,11 @@ button:hover {
 }
 
 /* --------------------------------------------------------
-   UTILITY CLASSES
+   UTILITIES
 ---------------------------------------------------------*/
 
 .text-glow {
-  text-shadow: 0px 0px 18px rgba(255,255,255,0.6);
+  text-shadow: 0px 0px 14px rgba(255,255,255,0.55);
 }
 
 .bg-glow {

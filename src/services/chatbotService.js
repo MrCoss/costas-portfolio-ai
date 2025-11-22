@@ -1,35 +1,35 @@
-// /src/services/chatbotService.js
 import axios from "axios";
 import portfolioData from "./portfolioData";
-import { summarizeProject, summarizeSkills, summarizeExperience } from "./summaries";
 
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
 
-export const sendMessageToLLM = async (prompt) => {
+const chatService = async (prompt) => {
   const grounding = JSON.stringify(portfolioData);
 
   const systemPrompt = `
 You are the AI Assistant for the portfolio of Costas Pinto.
-Your knowledge MUST come ONLY from the portfolio dataset below. 
-NEVER answer anything outside the portfolio domain.
+Your answers MUST come only from the dataset below.
 
 DATASET:
 ${grounding}
 
-RULES:
-1. Answer only about: skills, projects, experience, certifications, education, summary, or contact.
-2. If the user asks anything else, say: "This assistant only provides information about the portfolio."
-3. You must be concise, technical, structured, and professional.
-4. Do not create information that is not present in the dataset.
-5. For project questions, summarize using structured formatting.
-6. For skills or experience, provide grouped summaries.
+OUTPUT RULES:
+1. Always answer in clean, natural human language.
+2. Do NOT use tables, pipes, markdown formatting, bullet columns, or code blocks.
+3. Keep your tone professional, concise, and conversational.
+4. Summaries should read like a human explanation, not like structured data.
+5. When listing items, use short sentences separated by commas or line breaks, not markdown lists.
+6. Never invent information not present in the dataset.
+7. If the question is outside the portfolio scope, reply:
+   "This assistant only provides information about the portfolio."
 `;
+
 
   try {
     const response = await axios.post(
       OPENROUTER_URL,
       {
-        model: import.meta.env.VITE_MIXTRAL_MODEL || "openai/gpt-oss-20b",
+        model: "openai/gpt-oss-20b",  // ← REQUIRED FOR FREE MODEL
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: prompt },
@@ -38,15 +38,16 @@ RULES:
       {
         headers: {
           Authorization: `Bearer ${import.meta.env.VITE_OPENROUTER_API_KEY}`,
-          "HTTP-Referer": import.meta.env.VITE_PUBLIC_URL || "http://localhost:5173",
-          "X-Title": "portfolio-ai-assistant",
+          "X-Title": "costas-portfolio-ai",
         },
       }
     );
 
     return response.data?.choices?.[0]?.message?.content || "No response.";
   } catch (err) {
-    console.error("Chatbot error:", err);
+    console.error("Chatbot error:", err.response?.data || err);
     return "The assistant is temporarily unavailable.";
   }
 };
+
+export default chatService;

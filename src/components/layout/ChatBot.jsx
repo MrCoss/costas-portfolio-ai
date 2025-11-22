@@ -1,238 +1,296 @@
-// /src/components/layout/ChatBot.jsx
-
 import React, { useState, useRef, useEffect } from "react";
-import { sendMessageToLLM } from "../../services/chatbotService";
-import suggestions from "../../services/suggestions";
-
-// Mic Icon (Apple minimal)
-const MicIcon = () => (
-  <svg
-    width="18"
-    height="18"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="black"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M12 1a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
-    <path d="M19 10a7 7 0 0 1-14 0" />
-    <line x1="12" y1="17" x2="12" y2="23" />
-    <line x1="8" y1="23" x2="16" y2="23" />
-  </svg>
-);
-
-// Close Icon (Apple minimal X)
-const CloseIcon = () => (
-  <svg
-    width="18"
-    height="18"
-    viewBox="0 0 24 24"
-    stroke="black"
-    fill="none"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <line x1="18" y1="6" x2="6" y2="18" />
-    <line x1="6" y1="6" x2="18" y2="18" />
-  </svg>
-);
+import chatService from "../../services/chatbotService";
+import { Send, Bot, X, Sparkles, User } from "lucide-react"; // *Requires: npm install lucide-react*
+// If you don't have lucide-react, you can replace these components with simple SVGs or Emoji.
 
 const ChatBot = () => {
   const [open, setOpen] = useState(false);
-  const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [listening, setListening] = useState(false);
+  const [messages, setMessages] = useState([]);
+  const [typing, setTyping] = useState(false);
 
-  const bottomRef = useRef(null);
+  const msgEndRef = useRef(null);
 
+  // Auto-scroll to bottom
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+    msgEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, typing, open]);
 
-  const startVoiceInput = () => {
-    if (!window.webkitSpeechRecognition) {
-      alert("Voice recognition not supported in this browser.");
-      return;
-    }
+  // Core message handler
+  const sendMessage = async (text = input) => {
+    if (!text.trim()) return;
 
-    const recognition = new window.webkitSpeechRecognition();
-    recognition.lang = "en-US";
-    recognition.interimResults = false;
-
-    recognition.onstart = () => setListening(true);
-    recognition.onend = () => setListening(false);
-
-    recognition.onresult = (event) => {
-      const text = event.results[0][0].transcript;
-      setInput(text);
+    const userMsg = {
+      sender: "user",
+      text,
+      time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
     };
 
-    recognition.start();
-  };
-
-  const sendMessage = async () => {
-    if (!input.trim()) return;
-
-    const userMsg = { role: "user", content: input };
     setMessages((prev) => [...prev, userMsg]);
     setInput("");
-    setLoading(true);
+    setTyping(true);
 
-    const reply = await sendMessageToLLM(userMsg.content);
+    // Simulate network delay or fetch real service
+    // const reply = await chatService(text); 
+    // Note: Ensure chatService handles errors gracefully
+    let reply = "";
+    try {
+         reply = await chatService(text);
+    } catch (e) {
+         reply = "I'm having a bit of trouble connecting right now.";
+    }
 
-    setMessages((prev) => [...prev, { role: "assistant", content: reply }]);
-    setLoading(false);
+    const botMsg = {
+      sender: "bot",
+      text: reply,
+      time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+    };
+
+    setTyping(false);
+    setMessages((prev) => [...prev, botMsg]);
   };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") sendMessage();
+  };
+
+  const suggestions = [
+    "Show major projects",
+    "List certifications",
+    "Skills summary",
+    "Experience overview",
+  ];
 
   return (
     <>
-      {/* Floating Button */}
-      <button
-        onClick={() => setOpen(!open)}
-        id="chat-toggler"
-        className="
-          fixed bottom-6 right-6
-          bg-white/60 backdrop-blur-xl
-          shadow-xl text-black px-6 py-3
-          rounded-2xl font-semibold
-          hover:bg-white/80 transition
-        "
-      >
-        AI Assistant
-      </button>
+      {/* --- Trigger Button (Orb Style) --- */}
+      {!open && (
+        <button
+          onClick={() => setOpen(true)}
+          className="
+            fixed bottom-8 right-8 z-50
+            w-16 h-16 rounded-full
+            bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500
+            shadow-[0_0_30px_rgba(99,102,241,0.6)]
+            flex items-center justify-center
+            hover:scale-110 transition-transform duration-300 ease-out
+            group
+          "
+        >
+          {/* Inner glow ring */}
+          <div className="absolute inset-0 rounded-full border border-white/30 group-hover:border-white/60 transition-colors" />
+          <Sparkles className="text-white w-7 h-7 animate-pulse-slow" />
+        </button>
+      )}
 
-      {/* Apple-Glass Chat Window */}
+      {/* --- Main Chat Window (Apple Glass) --- */}
       {open && (
         <div
           className="
-            fixed bottom-10 right-6 w-[420px]
-            bg-white/25 backdrop-blur-2xl
-            border border-white/40
-            shadow-[0_4px_40px_rgba(0,0,0,0.20)]
-            rounded-3xl p-6 pt-10 flex flex-col
-            animate-[fadeIn_0.35s_ease-out,scaleUp_0.35s_ease-out]
+            fixed bottom-6 right-6 z-50
+            w-[90vw] max-w-[380px] h-[600px] max-h-[80vh]
+            flex flex-col
+            bg-gray-900/60 backdrop-blur-3xl
+            border border-white/10
+            rounded-[2rem]
+            shadow-2xl shadow-black/50
+            animate-in fade-in slide-in-from-bottom-4 duration-300
+            overflow-hidden
           "
-          style={{ transformOrigin: "bottom right" }}
         >
-          {/* Close Button */}
-          <button
-            onClick={() => setOpen(false)}
-            className="
-              absolute top-3 right-3
-              w-8 h-8 flex items-center justify-center
-              bg-white/70 backdrop-blur-xl
-              rounded-xl border border-white/40
-              hover:bg-white transition
-            "
-          >
-            <CloseIcon />
-          </button>
+          {/* --- Header --- */}
+          <div className="
+            flex justify-between items-center px-6 py-4 
+            bg-white/5 border-b border-white/5
+          ">
+            <div className="flex items-center gap-3">
+              <div className="
+                w-10 h-10 rounded-full 
+                bg-gradient-to-tr from-blue-500 to-purple-600
+                flex items-center justify-center
+                shadow-lg shadow-purple-500/20
+              ">
+                <Bot className="text-white w-5 h-5" />
+              </div>
+              <div>
+                <h2 className="text-white font-semibold text-base tracking-wide">Portfolio AI</h2>
+                <p className="text-white/50 text-xs">Online & Ready</p>
+              </div>
+            </div>
+            <button
+              onClick={() => setOpen(false)}
+              className="
+                w-8 h-8 rounded-full bg-white/5 hover:bg-white/10
+                flex items-center justify-center transition
+                text-white/70 hover:text-white
+              "
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
 
-          <h3 className="text-xl font-semibold mb-4 text-black">
-            Portfolio Assistant
-          </h3>
+          {/* --- Chat Area --- */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar">
+            {/* Welcome / Empty State */}
+            {messages.length === 0 && (
+              <div className="text-center mt-10 space-y-4 opacity-0 animate-fade-in-delay">
+                <div className="w-16 h-16 bg-white/5 rounded-2xl mx-auto flex items-center justify-center border border-white/10">
+                    <Sparkles className="text-purple-400 w-8 h-8" />
+                </div>
+                <p className="text-white/80 text-sm px-6">
+                  Ask me anything about the projects, skills, or experience displayed here.
+                </p>
+                
+                <div className="grid grid-cols-1 gap-2 px-2 mt-4">
+                  {suggestions.map((q, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => sendMessage(q)}
+                      className="
+                        text-xs text-left text-white/70
+                        bg-white/5 hover:bg-white/10 border border-white/5
+                        rounded-xl py-3 px-4
+                        transition-all duration-200
+                        hover:pl-5 hover:border-white/20
+                      "
+                    >
+                      {q}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
-          {/* Message Area */}
-          <div className="flex-1 h-72 overflow-y-auto space-y-3 pr-2 mb-5">
-            {messages.map((msg, idx) => (
+            {/* Message List */}
+            {messages.map((m, i) => (
               <div
-                key={idx}
-                className={`p-3 rounded-2xl max-w-[85%] ${
-                  msg.role === "user"
-                    ? "bg-white text-black ml-auto border border-gray-200"
-                    : "bg-white/40 backdrop-blur-xl text-black"
+                key={i}
+                className={`flex items-end gap-3 ${
+                  m.sender === "user" ? "justify-end" : "justify-start"
                 }`}
               >
-                {msg.content}
+                {m.sender === "bot" && (
+                  <div className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center shrink-0">
+                    <Bot className="w-3 h-3 text-white/70" />
+                  </div>
+                )}
+
+                <div
+                  className={`
+                    max-w-[80%] p-3.5 rounded-2xl text-sm leading-relaxed shadow-sm
+                    animate-pop-in
+                    ${
+                      m.sender === "user"
+                        ? "bg-blue-600 text-white rounded-br-sm"
+                        : "bg-white/10 border border-white/10 text-white/90 rounded-bl-sm backdrop-blur-md"
+                    }
+                  `}
+                >
+                  {m.text}
+                  <div className={`text-[10px] mt-1 ${m.sender === 'user' ? 'text-blue-200' : 'text-white/40'}`}>
+                    {m.time}
+                  </div>
+                </div>
+
+                {m.sender === "user" && (
+                  <div className="w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center shrink-0">
+                     <User className="w-3 h-3 text-blue-400" />
+                  </div>
+                )}
               </div>
             ))}
 
-            {loading && (
-              <div className="text-gray-600 text-sm">Generating response…</div>
+            {/* Typing Indicator */}
+            {typing && (
+              <div className="flex items-center gap-3">
+                <div className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center">
+                    <Bot className="w-3 h-3 text-white/70" />
+                </div>
+                <div className="bg-white/5 border border-white/5 px-4 py-3 rounded-2xl rounded-bl-sm">
+                  <div className="flex gap-1">
+                    <span className="w-1.5 h-1.5 bg-white/40 rounded-full animate-bounce [animation-delay:-0.3s]" />
+                    <span className="w-1.5 h-1.5 bg-white/40 rounded-full animate-bounce [animation-delay:-0.15s]" />
+                    <span className="w-1.5 h-1.5 bg-white/40 rounded-full animate-bounce" />
+                  </div>
+                </div>
+              </div>
             )}
-
-            {listening && (
-              <div className="text-gray-700 text-sm">Listening…</div>
-            )}
-
-            <div ref={bottomRef} />
+            <div ref={msgEndRef} />
           </div>
 
-          {/* Suggestions */}
-          <div className="grid grid-cols-2 gap-3 mb-5">
-            {suggestions.map((s, idx) => (
-              <button
-                key={idx}
-                onClick={() => setInput(s)}
+          {/* --- Input Area (Capsule Style) --- */}
+          <div className="p-4 pt-2 bg-gradient-to-t from-black/20 to-transparent">
+            <div className="
+              flex items-center gap-2 
+              bg-white/10 border border-white/10 
+              backdrop-blur-md 
+              rounded-full pl-4 pr-2 py-2
+              focus-within:bg-white/15 focus-within:border-white/20
+              transition-all duration-300
+            ">
+              <input
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Type a message..."
                 className="
-                  bg-white/50 border border-white/40
-                  backdrop-blur-xl text-black
-                  px-3 py-2 rounded-xl text-sm
-                  hover:bg-white/70 transition truncate
+                  flex-1 bg-transparent text-white placeholder-white/30 text-sm
+                  outline-none min-w-0
                 "
+              />
+              <button
+                onClick={() => sendMessage()}
+                disabled={!input.trim()}
+                className={`
+                  w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300
+                  ${input.trim() 
+                    ? "bg-blue-500 hover:bg-blue-400 text-white shadow-lg shadow-blue-500/30 scale-100" 
+                    : "bg-white/5 text-white/20 scale-90 cursor-not-allowed"}
+                `}
               >
-                {s}
+                <Send className="w-4 h-4 ml-0.5" />
               </button>
-            ))}
-          </div>
-
-          {/* Input Row */}
-          <div className="flex items-center gap-2">
-            <input
-              className="
-                flex-1 p-3 bg-white/60 backdrop-blur-xl
-                rounded-xl border border-white/50
-                text-black placeholder-black/40
-                focus:outline-none
-              "
-              placeholder="Ask about my portfolio…"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-            />
-
-            {/* Mic */}
-            <button
-              onClick={startVoiceInput}
-              className="
-                w-10 h-10 flex items-center justify-center
-                bg-white/70 backdrop-blur-xl
-                rounded-xl border border-white/40
-                hover:bg-white transition
-              "
-            >
-              <MicIcon />
-            </button>
-
-            {/* Send */}
-            <button
-              onClick={sendMessage}
-              className="
-                px-4 py-2 bg-white/90 backdrop-blur-xl
-                rounded-xl text-black font-semibold
-                border border-white/50 text-sm
-                hover:bg-white transition
-              "
-            >
-              Send
-            </button>
+            </div>
           </div>
         </div>
       )}
 
-      {/* Animations */}
+      {/* --- CSS Utilities for Animations --- */}
       <style>{`
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
+        /* Custom Scrollbar for Glass Effect */
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 4px;
         }
-        @keyframes scaleUp {
-          from { transform: scale(0.92); }
-          to { transform: scale(1); }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: rgba(255, 255, 255, 0.1);
+          border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Animations */
+        @keyframes popIn {
+          0% { opacity: 0; transform: scale(0.9) translateY(10px); }
+          100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .animate-pop-in {
+          animation: popIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes fadeInDelay {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+        .animate-fade-in-delay {
+            animation: fadeInDelay 0.5s ease-out 0.2s forwards;
+        }
+        
+        .animate-pulse-slow {
+            animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
         }
       `}</style>
     </>

@@ -13,9 +13,10 @@ import "./styles/global.css";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <BrowserRouter>
+    <BrowserRouter basename="/costas-portfolio-ai">
       <Routes>
-        {/* Public Portfolio — wrapped in theme + content */}
+
+        {/* Public Portfolio (Wrapped in Theme + Content Providers) */}
         <Route
           path="/*"
           element={
@@ -27,8 +28,9 @@ ReactDOM.createRoot(document.getElementById("root")).render(
           }
         />
 
-        {/* Admin Backend — isolated, secure */}
+        {/* Admin CMS Backend */}
         <Route path="/admin/*" element={<AdminRoutes />} />
+
       </Routes>
     </BrowserRouter>
   </React.StrictMode>

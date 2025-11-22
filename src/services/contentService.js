@@ -1,6 +1,8 @@
 // src/services/contentService.js
 import { db } from "../config/firebase";
 import { ref, get, set } from "firebase/database";
+import { auth } from "../config/firebase";
+import { signOut } from "firebase/auth";
 
 /**
  * ---------------------------------------
@@ -16,7 +18,7 @@ export const getContent = async () => {
       return snapshot.val();
     }
 
-    return {}; // Empty structure fallback
+    return {}; // fallback when content does not exist
   } catch (error) {
     console.error("❌ Error loading content:", error);
     return {};
@@ -35,6 +37,22 @@ export const updateContent = async (updatedContent) => {
     return true;
   } catch (error) {
     console.error("❌ Error updating content:", error);
+    return false;
+  }
+};
+
+/**
+ * ---------------------------------------
+ *  LOGOUT USER (Firebase Auth)
+ * ---------------------------------------
+ */
+export const logoutUser = async () => {
+  try {
+    await signOut(auth);
+    console.log("🔒 User logged out");
+    return true;
+  } catch (error) {
+    console.error("❌ Logout failed:", error);
     return false;
   }
 };

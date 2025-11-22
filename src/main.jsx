@@ -13,10 +13,11 @@ import "./styles/global.css";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <BrowserRouter basename="/costas-portfolio-ai">
+    {/* ❌ REMOVE BASENAME — Vercel uses root domain, not subpath */}
+    <BrowserRouter>
       <Routes>
 
-        {/* Public Portfolio (Wrapped in Theme + Content Providers) */}
+        {/* Portfolio site */}
         <Route
           path="/*"
           element={
@@ -28,7 +29,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
           }
         />
 
-        {/* Admin CMS Backend */}
+        {/* Admin Panel */}
         <Route path="/admin/*" element={<AdminRoutes />} />
 
       </Routes>
